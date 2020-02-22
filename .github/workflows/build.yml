@@ -12,4 +12,7 @@ jobs:
       - name: Test
         run: sbt test
       - name: Publish
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         run: sbt bintrayWhoami
