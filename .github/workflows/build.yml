@@ -9,5 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v2
-      - name: Compile
-        run: sbt +compile
+      - name: Test
+        run: sbt test
+      - name: Publish
+        run: sbt bintrayWhoami

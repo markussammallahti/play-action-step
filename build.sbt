@@ -4,6 +4,8 @@ organization := "mrks"
 
 scalaVersion := "2.13.1"
 
+licenses += ("Apache-2.0", url("https://github.com/markussammallahti/play-action-step/blob/master/LICENSE"))
+
 crossScalaVersions := Seq("2.12.10", "2.13.1")
 
 scalacOptions ++= Seq(
