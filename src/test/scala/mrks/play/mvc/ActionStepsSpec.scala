@@ -33,7 +33,7 @@ class ActionStepsSpec extends WordSpec
     (status(result), contentAsString(result))
   }
 
-  private val form = Form(Forms.single("f", Forms.text))
+  private val form = Form(Forms.single("f", Forms.nonEmptyText))
   private val json = Json.obj("k1" -> "a", "k2" -> "b")
 
   "escalate" should {
@@ -208,26 +208,25 @@ class ActionStepsSpec extends WordSpec
     "Form" should {
       "run error handler on form with errors" in {
         run(for {
-          _ <- form                       ?| BadRequest("valid")
+          _ <- form.bind(Map("f" -> "a")) ?| BadRequest("valid")
           _ <- form.withError("f", "err") ?| (f => BadRequest(f.errorsAsJson))
         } yield {
           Ok
-        }
-        ) mustBe (BAD_REQUEST, """{"f":["err"]}""")
+        }) mustBe (BAD_REQUEST, """{"f":["err"]}""")
       }
       "return result on form without errors" in {
         run(for {
-          f1 <- form.bind(Map("f" -> "a")) ?| BadRequest
-          f2 <- form.bind(Map("f" -> "b")) ?| BadRequest
+          a <- form.bind(Map("f" -> "a")) ?| BadRequest
+          b <- form.bind(Map("f" -> "b")) ?| BadRequest
         } yield {
-          Ok(f1.value.fold("empty")(identity) + f2.value.fold("empty")(identity))
+          Ok(a + b)
         }) mustBe (OK, "ab")
       }
     }
     "Future[Form]" should {
       "run error handler on form with errors" in {
         run(for {
-          _ <- Future(form)                       ?| BadRequest("valid")
+          _ <- Future(form.bind(Map("f" -> "a"))) ?| BadRequest("valid")
           _ <- Future(form.withError("f", "err")) ?> (f => Future(BadRequest(f.errorsAsJson)))
         } yield {
           Ok
@@ -235,10 +234,10 @@ class ActionStepsSpec extends WordSpec
       }
       "return result on form without errors" in {
         run(for {
-          f1 <- Future(form.bind(Map("f" -> "a"))) ?| BadRequest
-          f2 <- Future(form.bind(Map("f" -> "b"))) ?| BadRequest
+          a <- Future(form.bind(Map("f" -> "a"))) ?| BadRequest
+          b <- Future(form.bind(Map("f" -> "b"))) ?| BadRequest
         } yield {
-          Ok(f1.value.fold("empty")(identity) + f2.value.fold("empty")(identity))
+          Ok(a + b)
         }) mustBe (OK, "ab")
       }
     }

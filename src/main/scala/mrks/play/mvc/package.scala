@@ -5,6 +5,5 @@ import play.api.mvc.Result
 import scala.concurrent.Future
 
 package object mvc {
-  type Handler[A] = A => Future[Result]
+  type Handler[B] = B => Future[Result]
 }
-

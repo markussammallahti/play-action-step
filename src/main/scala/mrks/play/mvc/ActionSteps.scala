@@ -6,7 +6,6 @@ import play.api.mvc.Result
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
-import scala.language.implicitConversions
 
 
 trait ActionSteps {
@@ -24,109 +23,131 @@ trait ActionSteps {
     def -| (esc: escalate.type): Step[Option[A]] = Step(Future.successful(Right(option)))
   }
 
-  implicit def futureToOps[A](future: Future[A])(implicit ec: ExecutionContext): StepOps[A, Throwable] = {
-    handler => Step(fromFuture(handler, future))
+  implicit class FutureStepBuilder[A](future: Future[A])(implicit ec: ExecutionContext) extends StepBuilder[A, Throwable] {
+    override def build(onError: Handler[Throwable]): Step[A] = {
+      Step(fromFuture(onError, future))
+    }
   }
 
-  implicit def booleanToOps(boolean: Boolean)(implicit ec: ExecutionContext): StepOps[Unit, Unit] = {
-    handler => Step(fromBoolean(handler)(boolean))
+  implicit class BooleanStepBuilder(boolean: Boolean)(implicit ec: ExecutionContext) extends StepBuilder[Unit, Unit] {
+    override def build(onError: Handler[Unit]): Step[Unit] = {
+      Step(fromBoolean(onError)(boolean))
+    }
   }
 
-  implicit def futureBooleanToOps(future: Future[Boolean])(implicit ec: ExecutionContext): StepOps[Unit, Unit] = {
-    handler => Step(future.flatMap(fromBoolean(handler)))
+  implicit class FutureBooleanStepBuilder(future: Future[Boolean])(implicit ec: ExecutionContext) extends StepBuilder[Unit, Unit] {
+    override def build(onError: Handler[Unit]): Step[Unit] = {
+      Step(future.flatMap(fromBoolean(onError)))
+    }
   }
 
-  implicit def optionToOps[A](option: Option[A])(implicit ec: ExecutionContext): StepOps[A, Unit] = {
-    handler => Step(fromOption(handler)(option))
+  implicit class OptionStepBuilder[A](option: Option[A])(implicit ec: ExecutionContext) extends StepBuilder[A, Unit] {
+    override def build(onError: Handler[Unit]): Step[A] = {
+      Step(fromOption(onError)(option))
+    }
   }
 
-  implicit def futureOptionToOps[A](futureOption: Future[Option[A]])(implicit ec: ExecutionContext): StepOps[A, Unit] = {
-    handler => Step(futureOption.flatMap(fromOption(handler)))
+  implicit class FutureOptionStepBuilder[A](futureOption: Future[Option[A]])(implicit ec: ExecutionContext) extends StepBuilder[A, Unit] {
+    override def build(onError: Handler[Unit]): Step[A] = {
+      Step(futureOption.flatMap(fromOption(onError)))
+    }
   }
 
-  implicit def eitherToOps[A, B](either: Either[B, A])(implicit ec: ExecutionContext): StepOps[A, B] = {
-    handler => Step(fromEither(handler)(either))
+  implicit class EitherStepBuilder[A, B](either: Either[B, A])(implicit ec: ExecutionContext) extends StepBuilder[A, B] {
+    override def build(onError: Handler[B]): Step[A] = {
+      Step(fromEither(onError)(either))
+    }
   }
 
-  implicit def futureEitherToOps[A, B](futureEither: Future[Either[B, A]])(implicit ec: ExecutionContext): StepOps[A, B] = {
-    handler => Step(futureEither.flatMap(fromEither(handler)))
+  implicit class FutureEitherStepBuilder[A, B](futureEither: Future[Either[B, A]])(implicit ec: ExecutionContext) extends StepBuilder[A, B] {
+    override def build(onError: Handler[B]): Step[A] = {
+      Step(futureEither.flatMap(fromEither(onError)))
+    }
   }
 
-  implicit def tryToOps[A](result: Try[A])(implicit ec: ExecutionContext): StepOps[A, Throwable] = {
-    handler => Step(fromFuture(handler, Future.fromTry(result)))
+  implicit class TryStepBuilder[A](result: Try[A])(implicit ec: ExecutionContext) extends StepBuilder[A, Throwable] {
+    override def build(onError: Handler[Throwable]): Step[A] = {
+      Step(fromFuture(onError, Future.fromTry(result)))
+    }
   }
 
-  implicit def formToOps[A](form: Form[A])(implicit ec: ExecutionContext): StepOps[Form[A], Form[A]] = {
-    handler => Step(fromForm(handler)(form))
+  implicit class FormStepBuilder[A](form: Form[A])(implicit ec: ExecutionContext) extends StepBuilder[A, Form[A]] {
+    override def build(onError: Handler[Form[A]]): Step[A] = {
+      Step(fromForm(onError)(form))
+    }
   }
 
-  implicit def futureFormToOps[A](futureForm: Future[Form[A]])(implicit ec: ExecutionContext): StepOps[Form[A], Form[A]] = {
-    handler => Step(futureForm.flatMap(fromForm(handler)))
+  implicit class FutureFormStepBuilder[A](futureForm: Future[Form[A]])(implicit ec: ExecutionContext) extends StepBuilder[A, Form[A]] {
+    override def build(onError: Handler[Form[A]]): Step[A] = {
+      Step(futureForm.flatMap(fromForm(onError)))
+    }
   }
 
-  implicit def jsResultOps[A](result: JsResult[A])(implicit ec: ExecutionContext): StepOps[A, JsError] = {
-    handler => Step(fromJsResult(handler)(result))
+  implicit class JsResultStepBuilder[A](result: JsResult[A])(implicit ec: ExecutionContext) extends StepBuilder[A, JsError] {
+    override def build(onError: Handler[JsError]): Step[A] = {
+      Step(fromJsResult(onError)(result))
+    }
   }
 
-  implicit def futureJsResultOps[A](futureResult: Future[JsResult[A]])(implicit ec: ExecutionContext): StepOps[A, JsError] = {
-    handler => Step(futureResult.flatMap(fromJsResult(handler)))
+  implicit class FutureJsResultStepBuilder[A](futureResult: Future[JsResult[A]])(implicit ec: ExecutionContext) extends StepBuilder[A, JsError] {
+    override def build(onError: Handler[JsError]): Step[A] = {
+      Step(futureResult.flatMap(fromJsResult(onError)))
+    }
   }
 
-  private def fromBoolean(handler: Handler[Unit])(boolean: Boolean)(implicit ec: ExecutionContext): Future[Either[Result, Unit]] = {
+  private def fromBoolean(onError: Handler[Unit])(boolean: Boolean)(implicit ec: ExecutionContext): Future[Either[Result, Unit]] = {
     if (boolean) {
       Future.successful(Right(()))
     }
     else {
-      handler(()).map(Left(_))
+      onError(()).map(Left(_))
     }
   }
 
-  private def fromOption[A](handler: Handler[Unit])(option: Option[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
+  private def fromOption[A](onError: Handler[Unit])(option: Option[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
     option match {
       case Some(value) =>
         Future.successful(Right(value))
 
       case _ =>
-        handler(()).map(Left(_))
+        onError(()).map(Left(_))
     }
   }
 
-  private def fromEither[A, B](handler: Handler[B])(either: Either[B, A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
+  private def fromEither[A, B](onError: Handler[B])(either: Either[B, A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
     either match {
       case Right(value) =>
         Future.successful(Right(value))
 
       case Left(value) =>
-        handler(value).map(Left(_))
+        onError(value).map(Left(_))
     }
   }
 
-  private def fromForm[A](handler: Handler[Form[A]])(form: Form[A])(implicit ec: ExecutionContext): Future[Either[Result, Form[A]]] = {
-    if (form.hasErrors) {
-      handler(form).map(Left(_))
-    }
-    else {
-      Future.successful(Right(form))
-    }
+  private def fromForm[A](onError: Handler[Form[A]])(form: Form[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
+    form.fold(
+      hasErrors => onError(hasErrors).map(Left(_)),
+      data      => Future.successful(Right(data))
+    )
   }
 
-  private def fromJsResult[A](handler: Handler[JsError])(result: JsResult[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
+  private def fromJsResult[A](onError: Handler[JsError])(result: JsResult[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
     result match {
       case JsSuccess(value, _) =>
         Future.successful(Right(value))
 
       case e: JsError =>
-        handler(e).map(Left(_))
+        onError(e).map(Left(_))
     }
   }
 
-  private def fromFuture[A](handler: Handler[Throwable], future: Future[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
+  private def fromFuture[A](onError: Handler[Throwable], future: Future[A])(implicit ec: ExecutionContext): Future[Either[Result, A]] = {
     future.transformWith {
       case Success(value) =>
         Future.successful(Right(value))
 
       case Failure(e) =>
-        handler(e).map(Left(_))
+        onError(e).map(Left(_))
     }
   }
 }
