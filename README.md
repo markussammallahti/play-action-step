@@ -18,7 +18,7 @@ Clone of [play-monadic-actions](https://github.com/Kanaka-io/play-monadic-action
 build.sbt
 ```
 resolvers += Resolver.bintrayRepo("mrks", "maven")
-libraryDependencies += "mrks" %% "play-action-step" % "1.0"
+libraryDependencies += "mrks" %% "play-action-step" % "1.0.1"
 ```
 
 Controller.scala
