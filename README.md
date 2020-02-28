@@ -51,29 +51,29 @@ class ExampleController(implicit ec: ExecutionContext) extends Controller with A
 
 |      Value     |      |         Source         | Operator |            Handler            |
 |----------------|:----:|------------------------|:--------:|-------------------------------|
-| `A`            | `<-` | `Future[A]`            |   `?|`   | `Throwable => Result`         |
+| `A`            | `<-` | `Future[A]`            |   `?\|`   | `Throwable => Result`         |
 | `A`            | `<-` | `Future[A]`            |   `?>`   | `Throwable => Result`         |
-| `Unit`         | `<-` | `Boolean`              |   `?|`   | `=> Result`                   |
+| `Unit`         | `<-` | `Boolean`              |   `?\|`   | `=> Result`                   |
 | `Unit`         | `<-` | `Boolean`              |   `?>`   | `=> Future[Result]`           |
-| `Unit`         | `<-` | `Future[Boolean]`      |   `?|`   | `=> Result`                   |
+| `Unit`         | `<-` | `Future[Boolean]`      |   `?\|`   | `=> Result`                   |
 | `Unit`         | `<-` | `Future[Boolean]`      |   `?>`   | `=> Future[Result]`           |
-| `A`            | `<-` | `Option[A]`            |   `?|`   | `=> Result`                   |
+| `A`            | `<-` | `Option[A]`            |   `?\|`   | `=> Result`                   |
 | `A`            | `<-` | `Option[A]`            |   `?>`   | `=> Future[Result]`           |
-| `A`            | `<-` | `Future[Option[A]]`    |   `?|`   | `=> Result`                   |
+| `A`            | `<-` | `Future[Option[A]]`    |   `?\|`   | `=> Result`                   |
 | `A`            | `<-` | `Future[Option[A]]`    |   `?>`   | `=> Future[Result]`           |
-| `A`            | `<-` | `Either[B, A]`         |   `?|`   | `B => Result`                 |
+| `A`            | `<-` | `Either[B, A]`         |   `?\|`   | `B => Result`                 |
 | `A`            | `<-` | `Either[B, A]`         |   `?>`   | `B => Future[Result]`         |
-| `A`            | `<-` | `Future[Either[B, A]]` |   `?|`   | `B => Result`                 |
+| `A`            | `<-` | `Future[Either[B, A]]` |   `?\|`   | `B => Result`                 |
 | `A`            | `<-` | `Future[Either[B, A]]` |   `?>`   | `B => Future[Result]`         |
-| `A`            | `<-` | `Try[A]`               |   `?|`   | `Throwable => Result`         |
+| `A`            | `<-` | `Try[A]`               |   `?\|`   | `Throwable => Result`         |
 | `A`            | `<-` | `Try[A]`               |   `?>`   | `Throwable => Future[Result]` |
-| `A`            | `<-` | `Form[A]`              |   `?|`   | `Form[A] => Result`           |
+| `A`            | `<-` | `Form[A]`              |   `?\|`   | `Form[A] => Result`           |
 | `A`            | `<-` | `Form[A]`              |   `?>`   | `Form[A] => Future[Result]`   |
-| `A`            | `<-` | `Future[Form[A]]`      |   `?|`   | `Form[A] => Result`           |
+| `A`            | `<-` | `Future[Form[A]]`      |   `?\|`   | `Form[A] => Result`           |
 | `A`            | `<-` | `Future[Form[A]]`      |   `?>`   | `Form[A] => Future[Result]`   |
-| `A`            | `<-` | `JsResult[A]`          |   `?|`   | `JsError => Result`           |
+| `A`            | `<-` | `JsResult[A]`          |   `?\|`   | `JsError => Result`           |
 | `A`            | `<-` | `JsResult[A]`          |   `?>`   | `JsError => Future[Result]`   |
-| `Option[A]`    | `<-` | `Option[A]`            |   `-|`   | `escalate`                    |
-| `Either[B, A]` | `<-` | `Either[B, A]`         |   `-|`   | `escalate`                    |
-| `Option[A]`    | `<-` | `Future[Option[A]]`    |   `-|`   | `escalate`                    |
-| `Either[B, A]` | `<-` | `Future[Either[B, A]]` |   `-|`   | `escalate`                    |
+| `Option[A]`    | `<-` | `Option[A]`            |   `-\|`   | `escalate`                    |
+| `Either[B, A]` | `<-` | `Either[B, A]`         |   `-\|`   | `escalate`                    |
+| `Option[A]`    | `<-` | `Future[Option[A]]`    |   `-\|`   | `escalate`                    |
+| `Either[B, A]` | `<-` | `Future[Either[B, A]]` |   `-\|`   | `escalate`                    |
