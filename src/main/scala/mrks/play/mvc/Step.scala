@@ -6,7 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
 
-case class Step[A](value: Future[Either[Result, A]]) {
+final case class Step[A](value: Future[Either[Result, A]]) {
   def map[B](f: A => B)(implicit ec: ExecutionContext): Step[B] = {
     Step(value.map(_.map(f)))
   }
