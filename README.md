@@ -5,6 +5,7 @@ Clone of [play-monadic-actions](https://github.com/Kanaka-io/play-monadic-action
 
 **Added**
 * Async error handler operator `?>`
+* Escalate support for `Option` and `Either` types
 * Scala 2.13 support
 * Implemented as trait
 
